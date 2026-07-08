@@ -4,7 +4,7 @@
 // @description     Dynamic island-like media controls for the Windows 11 taskbar.
 // @version         0.9.27
 // @author          usho
-// @github          https://github.com/usho-lear
+// @github          https://github.com/adaptaweb
 // @license         MIT
 // @include         explorer.exe
 // @architecture    x86-64
@@ -12,104 +12,85 @@
 // ==/WindhawkMod==
 
 // ==WindhawkModReadme==
-/*
-# Island Media Controls
-
-Bring the current media session directly into the Windows 11 taskbar with a
-compact, theme-aware island built from native XAML. Unlike a floating Win32
-overlay, the island is inserted into the taskbar layout as a real XAML Grid, so
-it fits naturally alongside your taskbar and system tray items.
-
-## Preview
-
-| Dark mode | Light mode |
-| :---: | :---: |
-| ![Island Media Controls in dark mode](https://raw.githubusercontent.com/usho-lear/island-media-controls/main/previews/dark-mode.gif) | ![Island Media Controls in light mode](https://raw.githubusercontent.com/usho-lear/island-media-controls/main/previews/light-mode.gif) |
-
-## Features
-
-- **Native taskbar integration:** Choose from several system tray and taskbar
-  positions without placing a separate always-on-top window over the taskbar.
-- **Live media information:** See album artwork, track title, and artist at a
-  glance, with smooth transitions when the active media session changes.
-- **Expanded player:** Click the compact island to open a native XAML player
-  with artwork, seekable playback progress, and previous, play/pause, and next
-  controls.
-- **Light and dark themes:** Colors, text, surfaces, and controls automatically
-  follow the Windows app theme.
-- **Fluent visuals:** Native Acrylic, rounded XAML geometry, album-art color
-  accents, hover feedback, and display-synced animations keep interactions
-  fluid and consistent with Windows 11.
-- **Flexible customization:** Adjust position, size, spacing, shadows, hover
-  behavior, background material, expanded button style, and idle visibility.
-- **Artwork effects:** Add an optional album-art background wash and choose
-  whether low-resolution video thumbnails use the original browser artwork,
-  a mesh gradient, or an energy-flame visual.
-*/
+/*...*/
 // ==/WindhawkModReadme==
 
 // ==WindhawkModSettings==
 /*
 - Main:
-  - Position: "tray_left"
-    $name: Taskbar position
+  - Position: tray_left
+    $name: Position
+    $description: >-
+      The position of the media controls on the taskbar.
     $options:
-    - "tray_left": "Tray - far left"
-    - "tray_right": "Tray - far right"
-    - "tray_before_clock": "Tray - left of clock"
-    - "tray_after_clock": "Tray - right of clock"
-    - "taskbar_left_edge": "Taskbar - left overlay"
-    - "taskbar_center_edge": "Taskbar - center overlay"
-    - "taskbar_right_edge": "Taskbar - right overlay"
+    - tray_left: Left side of the notification area
+    - tray_right: Right side of the notification area
+    - tray_before_clock: Before the clock
+    - tray_after_clock: After the clock
+    - taskbar_left_edge: Left edge of the taskbar
+    - taskbar_center_edge: Center edge of the taskbar
+    - taskbar_right_edge: Right edge of the taskbar
   - CompactWidth: 168
     $name: Compact width
+    $description: >-
+      The width in compact mode.
   - ExpandedWidth: 360
-    $name: Expanded overlay width
-  - ExpandedHeight: 500
-    $name: Expanded overlay height
+    $name: Expanded width
+    $description: >-
+      The width in expanded mode.
+  - ExpandedHeight: 430
+    $name: Expanded height
+    $description: >-
+      The height in expanded mode.
   - PopupSpacing: 8
-    $name: Expanded outer spacing
+    $name: Popup spacing
   - PopupCardGap: 8
-    $name: Expanded cover-to-controls gap
+    $name: Popup card gap
   - PopupShadowDepth: 48
-    $name: Expanded shadow depth
+    $name: Popup shadow depth
   - PopupShadowOpacity: 70
-    $name: Expanded shadow opacity (%)
-  - PopupButtonStyle: "minimal_transport"
-    $name: Expanded button style
+    $name: Popup shadow opacity
+  - PopupButtonStyle: minimal_transport
+    $name: Popup button style
     $options:
-    - "minimal_transport": "Minimal transport"
-    - "fluent_bold": "Fluent bold"
-  - PopupBackdropCoverEffect: "dark_only"
-    $name: Expanded background album wash
+    - minimal_transport: Minimal transport
+    - fluent_bold: Fluent bold
+  - PopupBackdropCoverEffect: dark_only
+    $name: Popup backdrop cover effect
     $options:
-    - "off": "Off"
-    - "dark_only": "Dark mode only"
-    - "on": "Always on"
-  - ArtworkAbstractMode: "browser_original"
-    $name: Low-res video artwork mode
+    - off: Off
+    - dark_only: Dark only
+    - on: On
+  - ArtworkAbstractMode: browser_original
+    $name: Artwork abstract mode
     $options:
-    - "browser_original": "Browser thumbnail"
-    - "mesh_gradient": "Mesh gradient"
-    - "energy_flame": "Flame"
+    - browser_original: Browser original
+    - mesh_gradient: Mesh gradient
+    - energy_flame: Energy flame
   - Height: 40
-    $name: Component height
+    $name: Height
+    $description: >-
+      The height of the media controls.
   - MarginLeft: 4
-    $name: Left margin
+    $name: Margin left
   - MarginRight: 4
-    $name: Right margin
+    $name: Margin right
   - HideWhenNoMedia: false
     $name: Hide when no media
+    $description: >-
+      Hide the media controls when no media is playing.
   - HoverScale: 106
-    $name: Hover scale (%)
+    $name: Hover scale
+    $description: >-
+      The scale factor when hovering, in percent.
   - HoverLerpSpeed: 28
-    $name: Hover smoothing
-  - Material: "mica_like"
-    $name: Background material
+    $name: Hover lerp speed
+  - Material: mica_like
+    $name: Material
     $options:
-    - "mica_like": "Mica-like content layer"
-    - "solid": "Solid"
-    - "acrylic": "Acrylic / glass"
+    - mica_like: Mica like
+    - solid: Solid
+    - acrylic: Acrylic
 */
 // ==/WindhawkModSettings==
 
@@ -539,6 +520,169 @@ bool TrySeekAppleMusicWithUiAutomation(double ratio) {
     return succeeded;
 }
 
+MediaState ReadAppleMusicMediaState() {
+    DWORD processId = FindAppleMusicProcessId();
+    if (!processId) {
+        return {};
+    }
+
+    MediaState state;
+    state.hasSession = true;
+    state.canSeek = false;
+
+    HWND appleHwnd = nullptr;
+    {
+        struct AppleMusicCtx { DWORD pid; HWND* hwnd; };
+        AppleMusicCtx appleCtx = {processId, &appleHwnd};
+        EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL {
+            auto& ctx = *reinterpret_cast<AppleMusicCtx*>(lParam);
+            DWORD pid;
+            GetWindowThreadProcessId(hwnd, &pid);
+            if (pid == ctx.pid && IsWindowVisible(hwnd)) {
+                *ctx.hwnd = hwnd;
+                return FALSE;
+            }
+            return TRUE;
+        }, reinterpret_cast<LPARAM>(&appleCtx));
+    }
+
+    if (appleHwnd) {
+        wchar_t title[512];
+        if (GetWindowTextW(appleHwnd, title, 512) > 0) {
+            std::wstring_view tv(title);
+            size_t sep = tv.find(L" - ");
+            if (sep != std::wstring_view::npos && sep > 0 &&
+                sep + 3 < tv.size()) {
+                state.title = std::wstring(tv.substr(0, sep));
+                state.artist = std::wstring(tv.substr(sep + 3));
+            } else if (tv != L"Apple Music") {
+                state.title = std::wstring(tv);
+            } else {
+                state.hasSession = false;
+                return state;
+            }
+        }
+    }
+
+    IUIAutomation* automation = nullptr;
+    HRESULT hr = CoCreateInstance(CLSID_CUIAutomation, nullptr,
+                                  CLSCTX_INPROC_SERVER,
+                                  IID_PPV_ARGS(&automation));
+    if (FAILED(hr)) {
+        return state;
+    }
+
+    IUIAutomationElement* root = nullptr;
+    hr = automation->GetRootElement(&root);
+    if (FAILED(hr)) {
+        automation->Release();
+        return state;
+    }
+
+    VARIANT processVariant{};
+    processVariant.vt = VT_I4;
+    processVariant.lVal = static_cast<LONG>(processId);
+
+    IUIAutomationCondition* processCondition = nullptr;
+    hr = automation->CreatePropertyCondition(UIA_ProcessIdPropertyId,
+                                             processVariant, &processCondition);
+    if (FAILED(hr) || !processCondition) {
+        root->Release();
+        automation->Release();
+        return state;
+    }
+
+    VARIANT scrubVariant{};
+    scrubVariant.vt = VT_BSTR;
+    scrubVariant.bstrVal = SysAllocString(L"LCDScrubber");
+    IUIAutomationCondition* scrubCondition = nullptr;
+    if (scrubVariant.bstrVal) {
+        automation->CreatePropertyCondition(UIA_AutomationIdPropertyId,
+                                            scrubVariant, &scrubCondition);
+    }
+
+    if (scrubCondition) {
+        IUIAutomationCondition* combined = nullptr;
+        automation->CreateAndCondition(processCondition, scrubCondition,
+                                       &combined);
+        if (combined) {
+            IUIAutomationElement* scrubber = nullptr;
+            hr = root->FindFirst(TreeScope_Subtree, combined, &scrubber);
+            if (SUCCEEDED(hr) && scrubber) {
+                IUnknown* unknown = nullptr;
+                hr = scrubber->GetCurrentPattern(UIA_RangeValuePatternId,
+                                                  &unknown);
+                if (SUCCEEDED(hr) && unknown) {
+                    IUIAutomationRangeValuePattern* range = nullptr;
+                    hr = unknown->QueryInterface(IID_PPV_ARGS(&range));
+                    if (SUCCEEDED(hr) && range) {
+                        double minimum = 0.0;
+                        double maximum = 0.0;
+                        double current = 0.0;
+                        range->get_CurrentMinimum(&minimum);
+                        range->get_CurrentMaximum(&maximum);
+                        range->get_CurrentValue(&current);
+
+                        if (maximum > minimum) {
+                            state.positionTicks = static_cast<int64_t>(
+                                (current - minimum) * 10000000.0);
+                            state.durationTicks = static_cast<int64_t>(
+                                (maximum - minimum) * 10000000.0);
+                            state.canSeek = true;
+                        }
+                        range->Release();
+                    }
+                    unknown->Release();
+                }
+                scrubber->Release();
+            }
+            combined->Release();
+        }
+        scrubCondition->Release();
+    }
+    VariantClear(&scrubVariant);
+
+    VARIANT ppVariant{};
+    ppVariant.vt = VT_BSTR;
+    ppVariant.bstrVal = SysAllocString(L"LCDPlayPauseButton");
+    IUIAutomationCondition* ppCondition = nullptr;
+    if (ppVariant.bstrVal) {
+        automation->CreatePropertyCondition(UIA_AutomationIdPropertyId,
+                                            ppVariant, &ppCondition);
+    }
+
+    if (ppCondition) {
+        IUIAutomationCondition* combined = nullptr;
+        automation->CreateAndCondition(processCondition, ppCondition,
+                                       &combined);
+        if (combined) {
+            IUIAutomationElement* ppButton = nullptr;
+            hr = root->FindFirst(TreeScope_Subtree, combined, &ppButton);
+            if (SUCCEEDED(hr) && ppButton) {
+                VARIANT nameValue{};
+                hr = ppButton->GetCurrentPropertyValue(UIA_NamePropertyId,
+                                                        &nameValue);
+                if (SUCCEEDED(hr) && nameValue.vt == VT_BSTR &&
+                    nameValue.bstrVal) {
+                    state.isPlaying =
+                        (wcsstr(nameValue.bstrVal, L"Pause") != nullptr);
+                }
+                VariantClear(&nameValue);
+                ppButton->Release();
+            }
+            combined->Release();
+        }
+        ppCondition->Release();
+    }
+    VariantClear(&ppVariant);
+
+    processCondition->Release();
+    root->Release();
+    automation->Release();
+
+    return state;
+}
+
 SolidColorBrush Brush(winrt::Windows::UI::Color color) {
     return SolidColorBrush(color);
 }
@@ -643,34 +787,11 @@ bool IsDarkModeApprox() {
 }
 
 mediax::Brush IslandBackgroundBrush() {
-    bool dark = IsDarkModeApprox();
-    if (g_settings.material == L"mica_like") {
-        return Brush(dark ? Color(0xC8, 0x2A, 0x2A, 0x2F)
-                          : Color(0xD4, 0xF3, 0xF3, 0xF6));
-    }
-
-    if (g_settings.material == L"acrylic") {
-        try {
-            mediax::AcrylicBrush brush;
-            brush.BackgroundSource(mediax::AcrylicBackgroundSource::HostBackdrop);
-            brush.TintColor(dark ? Color(0xFF, 0x20, 0x20, 0x24)
-                                 : Color(0xFF, 0xF3, 0xF3, 0xF6));
-            brush.TintOpacity(0.62);
-            brush.FallbackColor(dark ? Color(0xE8, 0x20, 0x20, 0x24)
-                                     : Color(0xE8, 0xF3, 0xF3, 0xF6));
-            return brush;
-        } catch (...) {
-        }
-    }
-
-    return Brush(dark ? Color(0xE8, 0x20, 0x20, 0x24)
-                      : Color(0xE8, 0xF4, 0xF4, 0xF6));
+    return Brush(Color(0x00, 0x00, 0x00, 0x00));
 }
 
 mediax::Brush IslandBorderBrush() {
-    bool dark = IsDarkModeApprox();
-    return Brush(dark ? Color(0x36, 0xFF, 0xFF, 0xFF)
-                      : Color(0x26, 0x00, 0x00, 0x00));
+    return Brush(Color(0x00, 0x00, 0x00, 0x00));
 }
 
 std::vector<uint8_t> ReadThumbnailBytes(streams::IRandomAccessStreamReference const& thumbnail) {
@@ -1167,6 +1288,14 @@ void RefreshMediaState(
     } catch (...) {
         state = {};
     }
+
+    if (!state.hasSession) {
+        MediaState appleMusicState = ReadAppleMusicMediaState();
+        if (appleMusicState.hasSession) {
+            state = std::move(appleMusicState);
+        }
+    }
+
     SetMedia(std::move(state));
 }
 
@@ -4824,7 +4953,7 @@ void OnCompactProgressRendering(
     winrt::Windows::Foundation::IInspectable const&,
     winrt::Windows::Foundation::IInspectable const&) {
     try {
-        if (!g_playerGrid || !g_compactProgress || g_expanded || g_unloading) {
+        if (!g_playerGrid || !g_compactProgress || g_unloading) {
             StopCompactProgressRenderLoop();
             return;
         }
@@ -4847,7 +4976,7 @@ void OnCompactProgressRendering(
 
 void StartCompactProgressRenderLoop() {
     if (!g_compactProgress || g_compactProgressRenderingHooked ||
-        g_expanded || g_unloading) {
+        g_unloading) {
         return;
     }
     g_lastCompactProgressFrameTime = {};
@@ -4984,7 +5113,7 @@ void StartCompactTrackTransition(std::wstring const& oldTitle,
                                  std::wstring const& oldArtist,
                                  bool animateText,
                                  bool animateArt) {
-    if (!g_playerGrid || g_expanded || g_unloading) {
+    if (!g_playerGrid || g_unloading) {
         ResetCompactTextAnimationVisuals();
         return;
     }
@@ -5643,7 +5772,6 @@ void ShowExpandedPopup() {
     ApplyPopupBackdrop(g_expandedPopup);
     PositionExpandedPopup();
     RenderExpandedPopupLayer();
-    SetCompactIslandSuppressed(true);
     ShowWindow(g_expandedPopup, SW_SHOW);
     SetTimer(g_expandedPopup, kPopupTimerId, g_popupXamlRoot ? 80 : 15, nullptr);
     if (g_popupXamlRoot) {
@@ -6021,9 +6149,12 @@ void MediaThreadProc() {
         }
 
         auto now = std::chrono::steady_clock::now();
+        auto pollInterval = FindAppleMusicProcessId() != 0
+                                ? std::chrono::seconds(3)
+                                : std::chrono::seconds(30);
         bool fallbackPollDue =
             lastFallbackPoll.time_since_epoch().count() == 0 ||
-            now - lastFallbackPoll >= std::chrono::seconds(30);
+            now - lastFallbackPoll >= pollInterval;
         bool shouldRefresh = g_mediaRefreshRequested.exchange(false) ||
                              fallbackPollDue;
 
@@ -6056,7 +6187,7 @@ void MediaThreadProc() {
 
         std::unique_lock lock(g_mediaCommandMutex);
         g_mediaCommandCv.wait_for(
-            lock, std::chrono::seconds(30), [] {
+            lock, pollInterval, [] {
                 return !g_mediaThreadRunning || !g_mediaCommands.empty() ||
                        g_mediaRefreshRequested.load();
             });
@@ -6530,7 +6661,7 @@ void UpdatePlayerContents() {
     }
     if (g_compactProgress) {
         bool shouldInterpolate = UpdateCompactProgressFromSnapshot();
-        if (shouldInterpolate && !g_expanded) {
+        if (shouldInterpolate) {
             StartCompactProgressRenderLoop();
         } else {
             StopCompactProgressRenderLoop();
@@ -6545,7 +6676,7 @@ void UpdatePlayerContents() {
             }
             compactArtChanged = compactArtHash != g_lastThumbnailHash;
             if (compactArtChanged) {
-                bool canAnimateArt = compactWasInitialized && !g_expanded && !g_unloading;
+                bool canAnimateArt = compactWasInitialized && !g_unloading;
                 try {
                     if (canAnimateArt && g_compactAlbumArtFade) {
                         auto oldSource = image.Source();
@@ -6571,7 +6702,7 @@ void UpdatePlayerContents() {
         }
     }
 
-    if (compactWasInitialized && !g_expanded && (compactTextChanged || compactArtChanged)) {
+    if (compactWasInitialized && (compactTextChanged || compactArtChanged)) {
         StartCompactTrackTransition(compactOldTitle, compactOldArtist,
                                     compactTextChanged, compactArtChanged);
     }
