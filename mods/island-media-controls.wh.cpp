@@ -2,7 +2,7 @@
 // @id              island-media-controls
 // @name            Island Media Controls
 // @description     Dynamic island-like media controls for the Windows 11 taskbar.
-// @version         0.9.252
+// @version         0.9.253
 // @author          usho
 // @github          https://github.com/usho-lear
 // @license         MIT
@@ -26,26 +26,27 @@ play/pause, and next controls.
 | :---: | :---: |
 | ![Island Media Controls in dark mode](https://raw.githubusercontent.com/usho-lear/island-media-controls/main/previews/dark-mode.gif) | ![Island Media Controls in light mode](https://raw.githubusercontent.com/usho-lear/island-media-controls/main/previews/light-mode.gif) |
 
+## Layout previews
+
+| Mode | Dark mode | Light mode |
+| :--- | :---: | :---: |
+| **Fullsize** | ![Island Media Controls fullsize mode in dark mode](https://raw.githubusercontent.com/usho-lear/island-media-controls/main/previews/darkfull.gif) | ![Island Media Controls fullsize mode in light mode](https://raw.githubusercontent.com/usho-lear/island-media-controls/main/previews/lightfull.gif) |
+| **Compact** | ![Island Media Controls compact mode in dark mode](https://raw.githubusercontent.com/usho-lear/island-media-controls/main/previews/darkcomp.gif) | ![Island Media Controls compact mode in light mode](https://raw.githubusercontent.com/usho-lear/island-media-controls/main/previews/lightcomp.gif) |
+
 ## What's new
 
-- **Dynamic dual islands:** Transport controls now use stronger spring feedback,
-  guarantee the full pressed pose even on quick clicks, preserve edge highlights,
-  and add a two-cycle shake when previous/next navigation fails.
-- **Liquid Glass refinements:** The material now uses a smoother edge-following
-  refraction band and stronger light-mode backdrop/control tint.
-- **Safer capture startup:** Borderless capture authorization is now bounded
-  and cleanly stopped before the mod unloads.
-- **Thread-safe live blur:** Capture rendering now uses a taskbar-thread
-  snapshot and serializes GPU presentation without blocking popup animation.
-- **Better light-mode visibility:** Liquid Glass now keeps the album-art
-  background wash enabled in light mode so the expanded surface remains legible.
-- **Current tuned defaults:** New installs now default to the tuned Liquid
-  Glass setup, Fluent bold controls, updated popup spacing, and the current
-  shadow depth while keeping browser thumbnails as the default artwork mode.
-- **Taskbar-aware expansion:** The expanded player adapts its opening direction,
-  layout, and artwork wash to the taskbar position.
-- **More cohesive morphing:** The compact island, artwork, progress bar, and
-  playback controls animate together during expand and collapse.
+- **Unified display modes:** Fullsize, compact expanded layout, and side
+  expansion are now selected from one clearer display-mode setting.
+- **New layout:** Adds a compact expanded player layout that keeps the cover,
+  track information, progress, and transport controls in a tighter card.
+- **Clearer settings layout:** Material, display mode, taskbar position, cover,
+  background, and button style are now grouped at the top, followed by toggles
+  and then numeric tuning controls.
+- **Elastic animation toggle:** The classic rebound option is now named
+  Elastic animation effect, remains enabled by default, and controls the
+  fullsize expand/collapse spring while compact click feedback stays on.
+- **Fresh previews:** The main dark/light preview is restored, and the new
+  fullsize and compact layout previews are shown below it.
 
 ## Features
 
@@ -77,8 +78,23 @@ play/pause, and next controls.
 // ==WindhawkModSettings==
 /*
 - Main:
+  - Material: "liquid_glass"
+    $name: Material
+    $description: Choose the surface style for the island and expanded player.
+    $options:
+    - "mica_like": "Mica-like"
+    - "solid": "Solid"
+    - "acrylic": "Acrylic glass"
+    - "liquid_glass": "Liquid Glass"
+  - DisplayMode: "fullsize"
+    $name: Display mode
+    $description: Choose how the compact island opens.
+    $options:
+    - "fullsize": "Fullsize"
+    - "compact": "Compact"
+    - "side_expand": "Side expansion mode"
   - Position: "tray_left"
-    $name: Taskbar position
+    $name: Taskbar placement
     $options:
     - "tray_left": "Tray - far left"
     - "tray_right": "Tray - far right"
@@ -87,74 +103,63 @@ play/pause, and next controls.
     - "taskbar_left_edge": "Taskbar - left overlay"
     - "taskbar_center_edge": "Taskbar - center overlay"
     - "taskbar_right_edge": "Taskbar - right overlay"
-  - CompactWidth: 169
-    $name: Compact width
-  - CompactMode: "classic"
-    $name: Compact component mode
-    $description: Dynamic dual islands keep the classic fixed media width and reveal a separate transport-control island on hover without opening the expanded player.
-    $options:
-    - "classic": "Classic island"
-    - "dynamic_dual": "Dynamic dual islands"
-  - AutoSizeToTaskbar: true
-    $name: Auto size to taskbar
-  - ExpandedWidth: 360
-    $name: Expanded overlay width
-  - ExpandedHeight: 500
-    $name: Expanded overlay height
-  - Compact: false
-    $name: Compact expanded layout
-    $description: Use a single compact card with the cover beside the song and artist information.
-  - PopupSpacing: 20
-    $name: Expanded outer spacing
-  - PopupCardGap: 8
-    $name: Expanded cover-to-controls gap
-  - PopupShadowDepth: 58
-    $name: Expanded shadow depth
-  - PopupShadowOpacity: 70
-    $name: Expanded shadow opacity (%)
-  - PopupButtonStyle: "fluent_bold"
-    $name: Expanded button style
-    $options:
-    - "minimal_transport": "Minimal transport"
-    - "fluent_bold": "Fluent bold"
-  - PopupBackdropCoverEffect: "dark_only"
-    $name: Expanded background album wash
-    $description: Liquid Glass keeps this enabled in light mode for readability.
-    $options:
-    - "off": "Off"
-    - "dark_only": "Dark mode only"
-    - "on": "Always on"
   - ArtworkAbstractMode: "browser_original"
-    $name: Low-res video artwork mode
+    $name: Cover fallback
+    $description: Replace low-resolution video thumbnails with generated artwork when desired.
     $options:
     - "browser_original": "Browser thumbnail"
     - "mesh_gradient": "Mesh gradient"
     - "energy_flame": "Flame"
+  - PopupBackdropCoverEffect: "dark_only"
+    $name: Album-color background
+    $description: Add a blurred album-color wash behind the expanded player.
+    $options:
+    - "off": "Off"
+    - "dark_only": "Dark mode only"
+    - "on": "Always on"
+  - PopupButtonStyle: "fluent_bold"
+    $name: Button style
+    $options:
+    - "minimal_transport": "Minimal transport"
+    - "fluent_bold": "Fluent bold"
+  - AutoSizeToTaskbar: true
+    $name: Match taskbar height
+    $description: Automatically size the island to fit themed or non-standard taskbars.
+  - HideWhenNoMedia: false
+    $name: Hide when no media
+  - ClassicMorphScaleAnimation: true
+    $name: Elastic animation effect
+    $description: Enables elastic overshoot and rebound during fullsize expand/collapse. Compact click feedback always remains enabled.
+  - AllowScreenCapture: false
+    $name: Capturable blurred backdrop
+    $description: Uses a capturable static blurred backdrop for Acrylic and Liquid Glass, avoiding self-capture feedback.
+  - CompactWidth: 169
+    $name: Island width
   - Height: 40
-    $name: Component height
+    $name: Island height
   - MarginLeft: 4
     $name: Left margin
   - MarginRight: 4
     $name: Right margin
-  - HideWhenNoMedia: false
-    $name: Hide when no media
+  - ExpandedWidth: 360
+    $name: Expanded player width
+  - ExpandedHeight: 500
+    $name: Expanded player height
+  - PopupSpacing: 20
+    $name: Expanded outer spacing
+  - PopupCardGap: 8
+    $name: Cover-to-controls gap
+  - PopupShadowDepth: 58
+    $name: Shadow depth
+  - PopupShadowOpacity: 70
+    $name: Shadow opacity (%)
   - HoverScale: 106
     $name: Hover scale (%)
   - HoverLerpSpeed: 28
     $name: Hover smoothing
   - AnimationSpeed: 100
-    $name: Expanded animation speed (%)
+    $name: Animation speed (%)
     $description: 100 is normal speed. Use lower values such as 25 for slow-motion animation preview.
-  - ClassicMorphScaleAnimation: true
-    $name: Classic rebound animation
-    $description: Enables elastic overshoot and rebound during classic expand/collapse. When disabled, the morph does not cross its endpoints. Compact click feedback always remains enabled.
-  - Material: "liquid_glass"
-    $name: Background material
-    $options:
-    - "mica_like": "Mica-like content layer"
-    - "solid": "Solid"
-    - "acrylic": "Acrylic / glass"
-    - "liquid_glass": "Liquid glass"
   - BackdropInitialFrameSkip: 2
     $name: Backdrop initial frame skip
     $description: Number of WGC frames to skip before replacing the fallback frame.
@@ -167,9 +172,6 @@ play/pause, and next controls.
   - BackdropWgcBlurStdDev: 18
     $name: Backdrop WGC blur strength
     $description: Gaussian blur standard deviation for live WGC blur.
-  - AllowScreenCapture: false
-    $name: Allow screen capture of expanded popup
-    $description: Uses a capturable static blurred backdrop for Acrylic and Liquid glass, avoiding self-capture feedback.
 */
 // ==/WindhawkModSettings==
 
@@ -1340,10 +1342,39 @@ std::vector<uint8_t> ReadThumbnailBytes(streams::IRandomAccessStreamReference co
     return bytes;
 }
 
-std::wstring GetStringSetting(const wchar_t* key, const wchar_t* fallback) {
+std::wstring GetOptionalStringSetting(const wchar_t* key) {
     auto setting = WindhawkUtils::StringSetting::make(key);
     PCWSTR value = setting.get();
-    return value && *value ? value : fallback;
+    return value ? value : L"";
+}
+
+std::wstring GetStringSetting(const wchar_t* key, const wchar_t* fallback) {
+    std::wstring value = GetOptionalStringSetting(key);
+    return value.empty() ? fallback : value;
+}
+
+void ApplyDisplayModeSetting(Settings* settings) {
+    std::wstring displayMode = GetOptionalStringSetting(L"Main.DisplayMode");
+    if (displayMode.empty()) {
+        settings->compactMode = GetStringSetting(L"Main.CompactMode", L"classic");
+        if (settings->compactMode != L"classic" &&
+            settings->compactMode != L"dynamic_dual") {
+            settings->compactMode = L"classic";
+        }
+        settings->compact = Wh_GetIntSetting(L"Main.Compact") != 0;
+        return;
+    }
+
+    if (displayMode == L"side_expand" || displayMode == L"dynamic_dual") {
+        settings->compactMode = L"dynamic_dual";
+        settings->compact = false;
+    } else if (displayMode == L"compact") {
+        settings->compactMode = L"classic";
+        settings->compact = true;
+    } else {
+        settings->compactMode = L"classic";
+        settings->compact = false;
+    }
 }
 
 constexpr int kSettingsMigrationVersion = 1;
@@ -1372,15 +1403,12 @@ Settings ReadSettings() {
     Settings settings;
     settings.position = GetStringSetting(L"Main.Position", L"tray_left");
     settings.compactWidth = Clamp(Wh_GetIntSetting(L"Main.CompactWidth"), 96, 320);
-    settings.compactMode = GetStringSetting(L"Main.CompactMode", L"classic");
-    if (settings.compactMode != L"classic" &&
-        settings.compactMode != L"dynamic_dual") {
-        settings.compactMode = L"classic";
-    }
+
+    ApplyDisplayModeSetting(&settings);
+
     settings.autoSizeToTaskbar = Wh_GetIntSetting(L"Main.AutoSizeToTaskbar") != 0;
     settings.expandedWidth = Clamp(Wh_GetIntSetting(L"Main.ExpandedWidth"), 240, 640);
     settings.expandedHeight = Clamp(Wh_GetIntSetting(L"Main.ExpandedHeight"), 430, 760);
-    settings.compact = Wh_GetIntSetting(L"Main.Compact") != 0;
     settings.popupSpacing = Clamp(Wh_GetIntSetting(L"Main.PopupSpacing"), 2, 40);
     settings.popupCardGap = Clamp(Wh_GetIntSetting(L"Main.PopupCardGap"), 0, 40);
     settings.popupShadowDepth = Clamp(Wh_GetIntSetting(L"Main.PopupShadowDepth"), 0, 128);
